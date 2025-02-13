@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidence List Builder</title>
+    <style>
+        :root {
+            --primary-color: #4cc9f0;
+            --secondary-color: #4895ef;
+            --success-color: #4361ee;
+            --background-color: #1a1b26;
+            --card-background: #24283b;
+            --text-color: #c0caf5;
+            --text-muted: #9aa5ce;
+            --border-color: #414868;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        .form-container {
+            background: var(--card-background);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--text-color);
+            font-size: 1.1em;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: rgba(76, 201, 240, 0.1);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            background: var(--primary-color);
+            color: var(--background-color);
+            border: none;
+            padding: 12px 25px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .proof-statement {
+            margin-top: 20px;
+            padding: 25px;
+            background: var(--success-color);
+            border-radius: var(--border-radius);
+            display: none;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .proof-statement h3 {
+            margin-top: 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+        }
+
+        .history {
+            margin-top: 40px;
+        }
+
+        .history h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .evidence-item {
+            padding: 20px;
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .evidence-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .evidence-item strong {
+            color: var(--primary-color);
+        }
+
+        .evidence-item em {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--primary-color);
+            color: var(--background-color);
+            border-radius: 20px;
+            font-style: normal;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+
+        select option {
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .small-button {
+            background: var(--secondary-color);
+            padding: 4px 8px;
+            font-size: 0.9em;
+            width: auto;
+        }
+
+        .category-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .category-input-group input {
+            flex: 1;
+        }
+
+        .category-input-group button {
+            width: auto;
+        }
+
+        .cancel-button {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .cancel-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .add-category-form {
+            margin-top: 10px;
+            padding: 15px;
+            background: var(--background-color);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .delete-button {
+            background: #ff4757;
+        }
+
+        .delete-button:hover {
+            background: #ff6b81;
+        }
+
+        .evidence-checkbox {
+            margin-right: 10px;
+        }
+
+        .evidence-item {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .evidence-content {
+            flex: 1;
+        }
+
+        .evidence-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .evidence-actions button {
+            padding: 4px 8px;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Evidence List Builder</h1>
+    </div>
+    
+    <div class="form-container">
+        <form id="evidenceForm">
+            <div class="form-group">
+                <label for="evidence">What happened? (Your success moment)</label>
+                <textarea id="evidence" required placeholder="Describe your win..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="date">When?</label>
+                <input type="date" id="date" required>
+            </div>
+
+            <div class="form-group">
+                <div class="category-header">
+                    <label for="category">Category</label>
+                    <button type="button" class="small-button" onclick="toggleAddCategory()">+ Add New</button>
+                </div>
+                <select id="category" required>
+                    <option value="">Select a category...</option>
+                    <option value="clutch">Clutch Moment</option>
+                    <option value="skill">Skill Success</option>
+                    <option value="mental">Mental Win</option>
+                    <option value="leadership">Leadership Win</option>
+                </select>
+            </div>
+
+            <div id="addCategoryForm" class="add-category-form" style="display: none;">
+                <div class="form-group">
+                    <label for="newCategory">New Category Name</label>
+                    <div class="category-input-group">
+                        <input type="text" id="newCategory" placeholder="Enter category name...">
+                        <button type="button" onclick="addNewCategory()">Add</button>
+                        <button type="button" class="cancel-button" onclick="toggleAddCategory()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit">Create Proof Statement</button>
+        </form>
+
+        <div id="proofStatement" class="proof-statement">
+            <h3>Your Proof Statement:</h3>
+            <p id="proofText"></p>
+            <div class="action-buttons">
+                <button onclick="copyToClipboard()">Copy to Clipboard</button>
+                <button onclick="shareViaEmail()">Share via Email</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="history">
+        <div class="history-header">
+            <h2>Your Evidence List</h2>
+            <div class="history-actions">
+                <button type="button" class="small-button" onclick="exportSelected()">Export Selected</button>
+                <button type="button" class="small-button" onclick="exportAll()">Export All</button>
+                <button type="button" class="small-button delete-button" onclick="deleteSelected()">Delete Selected</button>
+            </div>
+        </div>
+        <div id="evidenceList"></div>
+    </div>
+
+    <script>
+        // Initialize evidence list from localStorage
+        let evidenceList = JSON.parse(localStorage.getItem('evidenceList')) || [];
+
+        document.getElementById('evidenceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const evidence = document.getElementById('evidence').value;
+            const date = document.getElementById('date').value;
+            const category = document.getElementById('category').value;
+
+            // Create proof statement
+            const proofStatement = generateProofStatement(evidence, category);
+            
+            // Save to localStorage
+            const evidenceItem = {
+                evidence,
+                date,
+                category,
+                proofStatement,
+                timestamp: new Date().getTime()
+            };
+            
+            evidenceList.unshift(evidenceItem);
+            localStorage.setItem('evidenceList', JSON.stringify(evidenceList));
+
+            // Show proof statement
+            document.getElementById('proofText').textContent = proofStatement;
+            document.getElementById('proofStatement').style.display = 'block';
+
+            // Update display
+            displayEvidenceList();
+            
+            // Reset form
+            this.reset();
+        });
+
+        function generateProofStatement(evidence, category) {
+            const templates = [
+                `I have done this before: ${evidence}`,
+                `This proves I am capable of ${evidence}`,
+                `This is who I am: someone who ${evidence}`
+            ];
+            return templates[Math.floor(Math.random() * templates.length)];
+        }
+
+        function displayEvidenceList() {
+            const listElement = document.getElementById('evidenceList');
+            listElement.innerHTML = evidenceList.map((item, index) => `
+                <div class="evidence-item">
+                    <input type="checkbox" class="evidence-checkbox" data-index="${index}">
+                    <div class="evidence-content">
+                        <strong>${new Date(item.date).toLocaleDateString()}</strong>
+                        <p>${item.proofStatement}</p>
+                        <em>${getCategoryName(item.category)}</em>
+                        <div class="evidence-actions">
+                            <button type="button" class="small-button" onclick="exportSingle(${index})">Export</button>
+                            <button type="button" class="small-button delete-button" onclick="deleteSingle(${index})">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                clutch: 'Clutch Moment',
+                skill: 'Skill Success',
+                mental: 'Mental Win',
+                leadership: 'Leadership Win'
+            };
+            return categories[category] || category;
+        }
+
+        function copyToClipboard() {
+            const proofText = document.getElementById('proofText').textContent;
+            navigator.clipboard.writeText(proofText)
+                .then(() => alert('Copied to clipboard!'))
+                .catch(err => console.error('Failed to copy:', err));
+        }
+
+        function shareViaEmail() {
+            const proofText = document.getElementById('proofText').textContent;
+            const subject = 'My Evidence List Proof Statement';
+            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(proofText)}`;
+        }
+
+        // Add these new functions
+        function toggleAddCategory() {
+            const form = document.getElementById('addCategoryForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function addNewCategory() {
+            const input = document.getElementById('newCategory');
+            const categoryName = input.value.trim();
+            
+            if (!categoryName) {
+                alert('Please enter a category name');
+                return;
+            }
+
+            // Get existing categories from localStorage or create empty array
+            const customCategories = JSON.parse(localStorage.getItem('customCategories')) || [];
+            
+            // Create a unique value for the category
+            const categoryValue = categoryName.toLowerCase().replace(/\s+/g, '-');
+            
+            // Check if category already exists
+            if (customCategories.some(cat => cat.value === categoryValue)) {
+                alert('This category already exists');
+                return;
+            }
+
+            // Add new category
+            customCategories.push({
+                name: categoryName,
+                value: categoryValue
+            });
+
+            // Save to localStorage
+            localStorage.setItem('customCategories', JSON.stringify(customCategories));
+
+            // Add to select dropdown
+            const select = document.getElementById('category');
+            const option = document.createElement('option');
+            option.value = categoryValue;
+            option.textContent = categoryName;
+            select.appendChild(option);
+
+            // Clear and hide form
+            input.value = '';
+            toggleAddCategory();
+        }
+
+        // Modify the existing initialization code to load custom categories
+        function loadCustomCategories() {
+            const customCategories = JSON.parse(localStorage.getItem('customCategories')) || [];
+            const select = document.getElementById('category');
+            
+            customCategories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.value;
+                option.textContent = category.name;
+                select.appendChild(option);
+            });
+        }
+
+        // Call this when the page loads
+        loadCustomCategories();
+
+        // Initial display
+        displayEvidenceList();
+
+        function deleteSingle(index) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                evidenceList.splice(index, 1);
+                localStorage.setItem('evidenceList', JSON.stringify(evidenceList));
+                displayEvidenceList();
+            }
+        }
+
+        function deleteSelected() {
+            const checkboxes = document.querySelectorAll('.evidence-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('Please select items to delete');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete ${checkboxes.length} item(s)?`)) {
+                const indicesToDelete = Array.from(checkboxes)
+                    .map(cb => parseInt(cb.dataset.index))
+                    .sort((a, b) => b - a);  // Sort in descending order
+
+                indicesToDelete.forEach(index => {
+                    evidenceList.splice(index, 1);
+                });
+
+                localStorage.setItem('evidenceList', JSON.stringify(evidenceList));
+                displayEvidenceList();
+            }
+        }
+
+        function formatEvidenceForExport(items) {
+            return items.map(item => 
+                `Date: ${new Date(item.date).toLocaleDateString()}\n` +
+                `Category: ${getCategoryName(item.category)}\n` +
+                `Statement: ${item.proofStatement}\n` +
+                '----------------------------------------'
+            ).join('\n\n');
+        }
+
+        function exportSingle(index) {
+            const item = evidenceList[index];
+            const text = formatEvidenceForExport([item]);
+            downloadText(text, `evidence-${new Date(item.date).toLocaleDateString()}.txt`);
+        }
+
+        function exportSelected() {
+            const checkboxes = document.querySelectorAll('.evidence-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('Please select items to export');
+                return;
+            }
+
+            const selectedItems = Array.from(checkboxes)
+                .map(cb => evidenceList[parseInt(cb.dataset.index)]);
+            
+            const text = formatEvidenceForExport(selectedItems);
+            downloadText(text, `evidence-list-${new Date().toLocaleDateString()}.txt`);
+        }
+
+        function exportAll() {
+            const text = formatEvidenceForExport(evidenceList);
+            downloadText(text, `complete-evidence-list-${new Date().toLocaleDateString()}.txt`);
+        }
+
+        function downloadText(text, filename) {
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html> 
